@@ -1,37 +1,3 @@
-# rbac.yml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: ws-server-sa
-  namespace: ${NAMESPACE}
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: ${NAMESPACE}
-  name: pod-logs-reader
-rules:
-  - apiGroups: [""]
-    resources: ["pods", "pods/log"]
-    verbs: ["get", "list", "watch"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: pod-logs-reader-binding
-  namespace: default
-subjects:
-  - kind: ServiceAccount
-    name: ws-server-sa
-    namespace: default
-roleRef:
-  kind: Role
-  name: pod-logs-reader
-  apiGroup: rbac.authorization.k8s.io
-
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -61,17 +27,3 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "500m"
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ws-service
-spec:
-  selector:
-    app: ws-server
-  ports:
-    - protocol: TCP
-      port: 9000
-      targetPort: 9000
-  type: NodePort
